@@ -39,7 +39,100 @@ Moodle .mbz
 
 The extracted temporary data is not the output of the tool. The persistent outputs are the generated HTML, CSV and JSON reports.
 
-## 3. Searchable scopes
+
+## 3. Creating an appropriate Moodle backup
+
+The quality and completeness of a search depend on the information retained in the Moodle backup. Moodle Course Search cannot inspect data that was excluded when the `.mbz` file was created.
+
+A full archival backup is not necessary for many analysis tasks. A lightweight, purpose-built backup can reduce file size, processing overhead and the amount of unnecessary data being handled.
+
+### 3.1 Structural and metadata analysis
+
+For common searches involving activities, resources, sections, visibility, URLs and uploaded-file metadata, the principal backup option is:
+
+- **Include activities and resources**
+
+This is a useful lightweight starting point when user-generated activity content is not required.
+
+### 3.2 Analysis requiring forum posts or other user-generated activity data
+
+If the analysis needs actual forum discussions/posts or other relevant user-generated activity data, also enable:
+
+- **Include enrolled users**
+- **Anonymize user information**, where appropriate and supported by the Moodle configuration
+
+Including enrolled users is important because forum discussions and posts are user-generated activity data. A backup can contain the forum activity itself without containing the discussions/posts created within it.
+
+Anonymisation can reduce unnecessary exposure of user identities when identities are not relevant to the analysis. Users should still follow their organisation's data-protection and information-governance requirements.
+
+### 3.3 Options that can often be omitted
+
+For a lightweight search/inspection backup, information such as the following can normally be omitted unless it is specifically needed for the intended analysis:
+
+- blocks;
+- comments;
+- badges;
+- calendar events;
+- user completion details;
+- course logs;
+- grade history;
+- user role assignments;
+- groups/groupings;
+- content-bank data;
+- H5P user state;
+- other user/course-history information unrelated to the search.
+
+The exact options available vary by Moodle version and local configuration.
+
+### 3.4 File references and backup size
+
+Depending on the Moodle configuration and backup options, Moodle may retain file references or metadata without embedding every underlying file binary.
+
+For the current Moodle Course Search workflow, this can be advantageous. The tool searches Moodle-native XML and uploaded-file metadata; it does not currently extract and search text inside uploaded PDFs, DOCX files, PPTX files, videos or other binary resources.
+
+A lightweight backup can therefore be considerably smaller than a full archival backup while still retaining the structure and metadata needed for many searches.
+
+### 3.5 Why backup settings affect result status
+
+Consider a forum-post search.
+
+If a forum and its retained posts are present and a post matches, the result can be:
+
+```text
+FOUND
+```
+
+If retained forum-post evidence is present but no post matches, the result can be:
+
+```text
+NOT FOUND
+```
+
+If the forum exists but the backup contains no detected forum discussion/post evidence, the appropriate result is:
+
+```text
+UNABLE TO DETERMINE
+```
+
+This distinction is intentional. Absence of evidence from a purpose-built or incomplete backup should not be treated as proof that the content is absent from the live Moodle course.
+
+### 3.6 Practical lightweight profiles
+
+For many uses, the backup requirements can be summarised as:
+
+```text
+Structural / metadata search
+    Include activities and resources
+
+Forum-post / user-generated content search
+    Include activities and resources
+    Include enrolled users
+    Anonymize user information where appropriate
+```
+
+Only add further Moodle backup components when they are relevant to the analysis being performed.
+
+## 5. Searchable scopes
 
 The `--scope` option can restrict a query to one or more record categories.
 
@@ -103,7 +196,7 @@ python3 src/search_mbz.py input --batch \
 
 This does not search inside the binary file itself.
 
-## 4. Text matching
+## 5. Text matching
 
 ### Default behaviour
 
@@ -173,7 +266,7 @@ Example:
 
 Invalid regular expressions are reported as errors.
 
-## 5. Activity searches
+## 6. Activity searches
 
 ### Activity type
 
@@ -205,7 +298,7 @@ to require an activity name to contain at least one supplied phrase.
 
 The phrases use OR logic.
 
-## 6. XML field filtering
+## 7. XML field filtering
 
 Moodle activity XML contains named fields/tags such as:
 
@@ -237,7 +330,7 @@ This means records in either field can match.
 
 Field names are actual XML element/tag names discovered in the backup; they are not semantic categories invented by the tool.
 
-## 7. Forum searches and evidence completeness
+## 8. Forum searches and evidence completeness
 
 Forums require special care because a Moodle backup can contain the forum activity while omitting user-generated posts or discussions.
 
@@ -276,7 +369,7 @@ Forum activity exists, but the backup contains no detected forum post/discussion
 
 This prevents a lack of backup evidence from being incorrectly presented as proof that a message does not exist in the live course.
 
-## 8. Sections
+## 9. Sections
 
 Use repeatable `--section` filters to restrict records by section name or number.
 
@@ -294,7 +387,7 @@ The first filters records according to the section context they belong to.
 
 The second searches for the word `assessment` inside section records themselves.
 
-## 9. Visibility
+## 10. Visibility
 
 Use:
 
@@ -323,7 +416,7 @@ python3 src/search_mbz.py input --batch \
   -o output/hidden_activities
 ```
 
-## 10. File metadata
+## 11. File metadata
 
 The tool reads uploaded-file metadata from Moodle's `files.xml`.
 
@@ -364,7 +457,7 @@ assessment-guide.pdf
 
 matches the filename query, but a phrase that exists only inside the PDF will not currently be found.
 
-## 11. Domain searching
+## 12. Domain searching
 
 Use:
 
@@ -388,7 +481,7 @@ media.example.com
 
 The search can identify domains in different Moodle XML fields where URLs are retained.
 
-## 12. Combining filters
+## 13. Combining filters
 
 Filters can be combined.
 
@@ -411,7 +504,7 @@ It does **not** mean “run four separate searches”.
 
 This distinction is important when constructing complex queries.
 
-## 13. Result modes
+## 14. Result modes
 
 The default is:
 
@@ -442,7 +535,7 @@ The distinction between these statuses remains visible.
 
 `search_data.json` and `run_log.csv` retain the complete processing/audit information even when a result mode filters user-facing outputs.
 
-## 14. Batch and single-course operation
+## 15. Batch and single-course operation
 
 ### Single backup
 
@@ -476,7 +569,7 @@ python3 src/search_mbz.py \
 
 `--recursive` instructs the tool to include `.mbz` files in subfolders.
 
-## 15. Output files
+## 16. Output files
 
 ### `search_report.html`
 
@@ -508,7 +601,7 @@ Complete machine-readable results, including the full course result set.
 
 Processing outcome for each backup.
 
-## 16. Interpreting absence carefully
+## 17. Interpreting absence carefully
 
 A Moodle backup is a representation of a course created using particular backup settings.
 
@@ -525,7 +618,7 @@ This is especially important for:
 
 The tool reports what can be established from the retained backup data.
 
-## 17. Privacy and information governance
+## 18. Privacy and information governance
 
 Moodle backups can contain:
 
@@ -542,7 +635,7 @@ CloudPedagogy Moodle Course Search is local-first: it does not upload backups to
 
 The repository `.gitignore` is designed to prevent `.mbz` files and generated input/output data from being committed accidentally, but users remain responsible for checking what they publish.
 
-## 18. Current limitations
+## 19. Current limitations
 
 Version 1.4.1 does not:
 
@@ -555,7 +648,7 @@ Version 1.4.1 does not:
 
 It is a deterministic search and inspection tool over data retained in Moodle backups.
 
-## 19. Good practice
+## 20. Good practice
 
 For repeatable course checks:
 

@@ -91,6 +91,36 @@ cloudpedagogy-moodle-course-search/
 
 The tool uses Python's standard library.
 
+
+## Creating a Moodle backup for analysis
+
+Moodle Course Search analyses standard Moodle backup (`.mbz`) files. You do not need to restore the backup to a Moodle server before analysing it.
+
+In Moodle, open the course and use the course backup function to create and download an `.mbz` file. The exact menu location can vary by Moodle version, theme and local configuration.
+
+### Lightweight analysis backups
+
+A full archival Moodle backup is not required for many search and inspection tasks. Creating a purpose-built analysis backup can substantially reduce the size of the `.mbz` file and avoid including data that is not needed.
+
+For most structural and metadata searches, the key backup option is:
+
+- **Include activities and resources**
+
+This supports searches involving course activities, resources and associated Moodle data retained in the backup.
+
+If the analysis needs **user-generated activity content**, such as actual forum discussions or posts, also enable:
+
+- **Include enrolled users**
+- **Anonymize user information**, where appropriate and supported by the Moodle configuration
+
+Other backup components — such as logs, grade history, completion data, calendar events, badges and similar user/course-history data — can normally be omitted unless they are specifically required for the intended analysis.
+
+The information Moodle Course Search can inspect always depends on what the backup contains. For example, a forum activity may be present while its discussions/posts are absent. In that situation, a forum-post query may return `UNABLE TO DETERMINE` rather than incorrectly reporting `NOT FOUND`.
+
+Some Moodle configurations may create backups that retain references or metadata for files without embedding every file binary. This can be useful for lightweight analysis because the current version of Moodle Course Search searches Moodle XML and uploaded-file metadata rather than the contents of uploaded PDFs, Word documents, PowerPoint files or videos.
+
+Place downloaded `.mbz` files in the `input/` folder, or provide the path to an individual `.mbz` file directly on the command line.
+
 ## Quick start
 
 Place one or more Moodle backup files in `input/`.
