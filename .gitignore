@@ -1,0 +1,28 @@
+# Moodle backups
+*.mbz
+
+# Input data
+input/*
+!input/.gitkeep
+
+# Generated reports
+output/*
+!output/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.log
